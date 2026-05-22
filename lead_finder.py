@@ -423,7 +423,7 @@ def main():
 
     conn = init_db()
     leads = collect_all_leads(conn)
-    leads = leads[:80]
+    leads = leads[:10]
 
     if not leads:
         print("No new leads to analyze this run.")
