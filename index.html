@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Finder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080808;
+      --surface:   #111111;
+      --surface2:  #191919;
+      --border:    #252525;
+      --text:      #e2e2e2;
+      --subtext:   #777;
+      --hot:       #f03e3e;
+      --warm:      #f59f00;
+      --cold:      #339af0;
+      --hiring:    #cc5de8;
+      --green:     #20c997;
+      --radius:    10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .logo em { color: var(--hot); font-style: normal; }
+
+    .divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .week-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .week-wrap label {
+      font-size: 11px;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    select:hover { border-color: #3a3a3a; }
+    select:focus { border-color: #555; }
+
+    .header-stats {
+      display: flex;
+      gap: 14px;
+      margin-left: auto;
+    }
+
+    .hstat {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--subtext);
+      white-space: nowrap;
+    }
+    .hstat b { color: var(--text); }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-hiring    { background: var(--hiring); }
+    .dot-hot       { background: var(--hot); }
+    .dot-warm      { background: var(--warm); }
+    .dot-cold      { background: var(--cold); }
+    .dot-contacted { background: var(--green); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+
+    /* ── STATE MESSAGES ── */
+    .state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px;
+      color: var(--subtext);
+      gap: 12px;
+      text-align: center;
+    }
+    .state-icon { font-size: 40px; }
+    .state-msg  { font-size: 15px; }
+
+    /* ── TIER SECTION ── */
+    .tier-section { margin-bottom: 52px; }
+
+    .tier-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tier-label {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .tier-pill {
+      font-size: 11px;
+      color: var(--subtext);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 520px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      header { gap: 10px; }
+      .header-stats { display: none; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+    }
+    .card.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card:hover {
+      box-shadow: 0 6px 28px rgba(0,0,0,0.45);
+      border-color: #333;
+    }
+    .card.is-contacted {
+      opacity: 0.38;
+      border-color: var(--green) !important;
+    }
+    .card.is-contacted:hover { opacity: 0.6; }
+
+    /* top colour bar */
+    .card-bar { height: 3px; }
+    .card.tier-hiring .card-bar { background: var(--hiring); }
+    .card.tier-hot    .card-bar { background: var(--hot); }
+    .card.tier-warm   .card-bar { background: var(--warm); }
+    .card.tier-cold   .card-bar { background: var(--cold); }
+
+    .card-inner { padding: 18px 20px 20px; }
+
+    /* card top row */
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .card-author {
+      font-size: 12px;
+      color: var(--subtext);
+    }
+    .card-author a {
+      color: var(--subtext);
+      text-decoration: none;
+    }
+    .card-author a:hover { color: var(--text); text-decoration: underline; }
+
+    /* badges */
+    .badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .badge-prio {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--subtext);
+    }
+    .badge-prio.hi  { color: var(--hot); }
+    .badge-prio.med { color: var(--warm); }
+    .badge-prio.lo  { color: var(--cold); }
+
+    .badge-match-high   { background: rgba(32,201,151,0.1); color: var(--green); }
+    .badge-match-medium { background: rgba(245,159,0,0.1);  color: var(--warm); }
+    .badge-match-low    { background: rgba(51,154,240,0.1); color: var(--cold); }
+
+    .badge-hiring {
+      background: rgba(204,93,232,0.12);
+      color: var(--hiring);
+      border: 1px solid rgba(204,93,232,0.25);
+    }
+
+    /* reason */
+    .card-reason {
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    /* hiring quote */
+    .hiring-quote {
+      margin-bottom: 12px;
+      padding: 9px 12px;
+      background: rgba(204,93,232,0.07);
+      border-left: 3px solid var(--hiring);
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: #c79be8;
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    /* pitch rows */
+    .pitch {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 9px 11px;
+      background: var(--surface2);
+      border-radius: 7px;
+      margin-bottom: 6px;
+    }
+    .pitch-ico { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .pitch-lbl {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--subtext);
+      margin-bottom: 1px;
+    }
+    .pitch-txt { font-size: 12px; color: var(--text); line-height: 1.4; }
+
+    /* contact */
+    .contact-block {
+      margin-top: 12px;
+      padding: 9px 11px;
+      background: var(--surface2);
+      border-radius: 7px;
+    }
+    .contact-lbl {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--subtext);
+      margin-bottom: 3px;
+    }
+    .contact-val {
+      font-size: 12px;
+      color: var(--text);
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .contact-val.has-email { color: #74c0fc; }
+
+    /* footer buttons */
+    .card-footer {
+      display: flex;
+      gap: 7px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: background 0.15s, opacity 0.15s;
+      line-height: 1;
+    }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: #222; border-color: #3a3a3a; }
+
+    .btn-contacted {
+      background: rgba(32,201,151,0.1);
+      color: var(--green);
+      border: 1px solid rgba(32,201,151,0.2);
+    }
+    .btn-contacted:hover { background: rgba(32,201,151,0.18); }
+    .btn-contacted.active {
+      background: rgba(32,201,151,0.18);
+      color: var(--green);
+    }
+
+    /* ── CONTACTED SECTION TOGGLE ── */
+    .contacted-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      color: var(--subtext);
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 12px;
+    }
+    .contacted-toggle:hover { color: var(--text); }
+    .toggle-arrow {
+      display: inline-block;
+      font-size: 11px;
+      transition: transform 0.2s ease;
+    }
+    .contacted-toggle.open .toggle-arrow { transform: rotate(90deg); }
+
+    .contacted-drawer {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease;
+    }
+    .contacted-drawer.open { max-height: 9999px; }
+
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">lead<em>//</em>finder</div>
+  <div class="divider"></div>
+  <div class="week-wrap">
+    <label for="weekSelect">Week</label>
+    <select id="weekSelect"></select>
+  </div>
+  <div class="header-stats" id="headerStats"></div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main id="mainContent">
+  <div class="state">
+    <div class="state-icon">⏳</div>
+    <div class="state-msg">Loading...</div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// CONSTANTS & STATE
+// ─────────────────────────────────────────────
+const STORE_PREFIX = 'lf_contacted_';
+let currentDate   = null;
+let currentReport = null;
+
+// ─────────────────────────────────────────────
+// LOCALSTORAGE HELPERS
+// ─────────────────────────────────────────────
+function getContacted(date) {
+  try {
+    const raw = localStorage.getItem(STORE_PREFIX + date);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch { return new Set(); }
+}
+
+function saveContacted(date, set) {
+  localStorage.setItem(STORE_PREFIX + date, JSON.stringify([...set]));
+}
+
+function isContacted(date, id) {
+  return getContacted(date).has(id);
+}
+
+function toggleContacted(date, id) {
+  const set = getContacted(date);
+  set.has(id) ? set.delete(id) : set.add(id);
+  saveContacted(date, set);
+  return set.has(id);
+}
+
+// ─────────────────────────────────────────────
+// SAFE HTML ESCAPE
+// ─────────────────────────────────────────────
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ─────────────────────────────────────────────
+// TIER HELPERS
+// ─────────────────────────────────────────────
+function getTierClass(lead) {
+  if (lead.explicitly_hiring)             return 'tier-hiring';
+  if (lead.priority >= 7)                 return 'tier-hot';
+  if (lead.priority >= 4)                 return 'tier-warm';
+  return 'tier-cold';
+}
+
+function getPrioClass(p) {
+  if (p >= 7) return 'hi';
+  if (p >= 4) return 'med';
+  return 'lo';
+}
+
+function getMatchClass(m) {
+  const v = (m || '').toLowerCase();
+  if (v === 'high')   return 'badge-match-high';
+  if (v === 'medium') return 'badge-match-medium';
+  return 'badge-match-low';
+}
+
+// ─────────────────────────────────────────────
+// RENDER ONE CARD
+// ─────────────────────────────────────────────
+function renderCard(lead, date) {
+  const contacted  = isContacted(date, lead.id);
+  const tierClass  = getTierClass(lead);
+  const prioClass  = getPrioClass(lead.priority);
+  const matchClass = getMatchClass(lead.genre_match);
+  const hasEmail   = lead.contact && lead.contact.toLowerCase().startsWith('email:');
+
+  const hiringBadge = lead.explicitly_hiring
+    ? `<span class="badge badge-hiring">🚨 Hiring</span>` : '';
+
+  const authorInner = lead.author_profile_url
+    ? `<a href="${esc(lead.author_profile_url)}" target="_blank" rel="noopener">${esc(lead.author)}</a>`
+    : esc(lead.author);
+
+  const hiringQuoteHtml = (lead.explicitly_hiring && lead.hiring_quote)
+    ? `<div class="hiring-quote">${esc(lead.hiring_quote)}</div>` : '';
+
+  const sfxHtml = (lead.needs_sound_design && lead.pitch_sfx && lead.pitch_sfx !== 'N/A')
+    ? `<div class="pitch">
+         <div class="pitch-ico">🔊</div>
+         <div>
+           <div class="pitch-lbl">Sound Design</div>
+           <div class="pitch-txt">${esc(lead.pitch_sfx)}</div>
+         </div>
+       </div>` : '';
+
+  const musicHtml = (lead.needs_music && lead.pitch_music && lead.pitch_music !== 'N/A')
+    ? `<div class="pitch">
+         <div class="pitch-ico">🎵</div>
+         <div>
+           <div class="pitch-lbl">Music</div>
+           <div class="pitch-txt">${esc(lead.pitch_music)}</div>
+         </div>
+       </div>` : '';
+
+  const contactedBtnLabel = contacted ? '✓ Contacted' : 'Mark Contacted';
+  const contactedBtnClass = contacted ? 'btn-contacted active' : 'btn-contacted';
+
+  return `
+<div class="card ${tierClass}${contacted ? ' is-contacted' : ''}"
+     data-id="${esc(lead.id)}"
+     data-date="${esc(date)}">
+  <div class="card-bar"></div>
+  <div class="card-inner">
+
+    <div class="card-top">
+      <div>
+        <div class="card-title">${esc(lead.title)}</div>
+        <div class="card-author">by ${authorInner}</div>
+      </div>
+      <div class="badges">
+        ${hiringBadge}
+        <span class="badge badge-prio ${prioClass}">${lead.priority}/10</span>
+        <span class="badge ${matchClass}">${esc(lead.genre_match)}</span>
+      </div>
+    </div>
+
+    <div class="card-reason">${esc(lead.reason)}</div>
+
+    ${hiringQuoteHtml}
+    ${sfxHtml}
+    ${musicHtml}
+
+    <div class="contact-block">
+      <div class="contact-lbl">Contact</div>
+      <div class="contact-val${hasEmail ? ' has-email' : ''}">${esc(lead.contact) || 'Check page'}</div>
+    </div>
+
+    <div class="card-footer">
+      <a class="btn btn-secondary"
+         href="${esc(lead.url)}" target="_blank" rel="noopener">View Game ↗</a>
+      <button class="btn ${contactedBtnClass}"
+              onclick="onContactedClick(this)">
+        ${contactedBtnLabel}
+      </button>
+    </div>
+
+  </div>
+</div>`;
+}
+
+// ─────────────────────────────────────────────
+// CONTACTED BUTTON HANDLER
+// ─────────────────────────────────────────────
+function onContactedClick(btn) {
+  const card   = btn.closest('.card');
+  const id     = card.dataset.id;
+  const date   = card.dataset.date;
+  const nowIs  = toggleContacted(date, id);
+
+  card.classList.toggle('is-contacted', nowIs);
+  btn.textContent = nowIs ? '✓ Contacted' : 'Mark Contacted';
+  btn.classList.toggle('active', nowIs);
+
+  updateHeaderStats(date);
+}
+
+// ─────────────────────────────────────────────
+// ANIMATE CARDS IN (staggered)
+// ─────────────────────────────────────────────
+function animateCards() {
+  const cards = document.querySelectorAll('.card:not(.in)');
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('in'), i * 40);
+  });
+}
+
+// ─────────────────────────────────────────────
+// RENDER FULL REPORT
+// ─────────────────────────────────────────────
+function renderReport(report, date) {
+  const leads = report.leads || [];
+
+  if (leads.length === 0) {
+    document.getElementById('mainContent').innerHTML =
+      `<div class="state">
+         <div class="state-icon">🔇</div>
+         <div class="state-msg">No leads found for this week.</div>
+       </div>`;
+    return;
+  }
+
+  // Split into tiers
+  const hiring  = leads.filter(l => l.explicitly_hiring);
+  const hot     = leads.filter(l => !l.explicitly_hiring && l.priority >= 7);
+  const warm    = leads.filter(l => !l.explicitly_hiring && l.priority >= 4 && l.priority < 7);
+  const cold    = leads.filter(l => l.priority < 4);
+
+  // Separate out contacted leads
+  const contacted = leads.filter(l => isContacted(date, l.id));
+
+  let html = '';
+
+  const renderTier = (emoji, label, tierLeads) => {
+    if (!tierLeads.length) return '';
+    // Filter out already-contacted from the main view
+    const active = tierLeads.filter(l => !isContacted(date, l.id));
+    if (!active.length) return '';
+    return `
+      <section class="tier-section">
+        <div class="tier-heading">
+          <span class="tier-label">${emoji} ${esc(label)}</span>
+          <span class="tier-pill">${active.length}</span>
+        </div>
+        <div class="cards-grid">
+          ${active.map(l => renderCard(l, date)).join('')}
+        </div>
+      </section>`;
+  };
+
+  html += renderTier('🚨', 'Explicitly Hiring', hiring);
+  html += renderTier('🔥', 'Hot Leads',         hot);
+  html += renderTier('🟡', 'Warm Leads',         warm);
+  html += renderTier('🔵', 'Cold Leads',         cold);
+
+  // Contacted drawer
+  if (contacted.length) {
+    html += `
+      <div class="contacted-toggle" id="contactedToggle" onclick="toggleContactedDrawer()">
+        <span class="toggle-arrow">▶</span>
+        ✓ Contacted (${contacted.length})
+      </div>
+      <div class="contacted-drawer" id="contactedDrawer">
+        <div class="cards-grid" style="margin-top:16px">
+          ${contacted.map(l => renderCard(l, date)).join('')}
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('mainContent').innerHTML = html || `
+    <div class="state">
+      <div class="state-icon">✅</div>
+      <div class="state-msg">All leads have been contacted!</div>
+    </div>`;
+
+  // Stagger animate
+  requestAnimationFrame(animateCards);
+
+  updateHeaderStats(date);
+}
+
+// ─────────────────────────────────────────────
+// CONTACTED DRAWER TOGGLE
+// ─────────────────────────────────────────────
+function toggleContactedDrawer() {
+  const toggle  = document.getElementById('contactedToggle');
+  const drawer  = document.getElementById('contactedDrawer');
+  if (!toggle || !drawer) return;
+  toggle.classList.toggle('open');
+  drawer.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────
+// HEADER STATS
+// ─────────────────────────────────────────────
+function updateHeaderStats(date) {
+  const el = document.getElementById('headerStats');
+  if (!el || !currentReport) return;
+
+  const leads    = currentReport.leads || [];
+  const c        = currentReport.counts || {};
+  const nContacted = getContacted(date).size;
+
+  el.innerHTML = `
+    <div class="hstat"><span class="dot dot-hiring"></span><b>${c.hiring || 0}</b> hiring</div>
+    <div class="hstat"><span class="dot dot-hot"></span><b>${c.hot || 0}</b> hot</div>
+    <div class="hstat"><span class="dot dot-warm"></span><b>${c.warm || 0}</b> warm</div>
+    <div class="hstat"><span class="dot dot-cold"></span><b>${c.cold || 0}</b> cold</div>
+    <div class="hstat"><span class="dot dot-contacted"></span><b>${nContacted}</b> contacted</div>`;
+}
+
+// ─────────────────────────────────────────────
+// LOAD A WEEK'S REPORT
+// ─────────────────────────────────────────────
+async function loadReport(date) {
+  currentDate = date;
+
+  document.getElementById('mainContent').innerHTML =
+    `<div class="state">
+       <div class="state-icon">⏳</div>
+       <div class="state-msg">Loading ${date}…</div>
+     </div>`;
+  document.getElementById('headerStats').innerHTML = '';
+
+  try {
+    const res = await fetch(`reports/${date}.json?v=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    currentReport = await res.json();
+    renderReport(currentReport, date);
+  } catch (err) {
+    document.getElementById('mainContent').innerHTML =
+      `<div class="state">
+         <div class="state-icon">⚠️</div>
+         <div class="state-msg">Could not load report for ${date}.<br>
+           <small style="color:var(--subtext)">${esc(err.message)}</small>
+         </div>
+       </div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// BOOT — load manifest then first report
+// ─────────────────────────────────────────────
+async function boot() {
+  const sel = document.getElementById('weekSelect');
+
+  try {
+    const res = await fetch(`reports_manifest.json?v=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const dates = await res.json();
+
+    if (!dates.length) {
+      document.getElementById('mainContent').innerHTML =
+        `<div class="state">
+           <div class="state-icon">📭</div>
+           <div class="state-msg">No reports yet. Run the scraper to generate your first report.</div>
+         </div>`;
+      sel.innerHTML = '<option>No reports</option>';
+      return;
+    }
+
+    sel.innerHTML = dates
+      .map(d => `<option value="${esc(d)}">${d}</option>`)
+      .join('');
+
+    sel.addEventListener('change', () => loadReport(sel.value));
+
+    // Load the latest
+    loadReport(dates[0]);
+
+  } catch (err) {
+    document.getElementById('mainContent').innerHTML =
+      `<div class="state">
+         <div class="state-icon">⚠️</div>
+         <div class="state-msg">
+           Could not load manifest.<br>
+           <small style="color:var(--subtext)">
+             Make sure the scraper has run at least once.<br>${esc(err.message)}
+           </small>
+         </div>
+       </div>`;
+    sel.innerHTML = '<option>—</option>';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
