@@ -33,7 +33,6 @@
       min-height: 100vh;
     }
 
-    /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
@@ -52,7 +51,7 @@
       height: 60px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
 
     .logo {
@@ -62,6 +61,7 @@
       text-transform: uppercase;
       color: var(--text);
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .logo em { color: var(--hot); font-style: normal; }
 
@@ -99,10 +99,16 @@
     select:hover { border-color: #3a3a3a; }
     select:focus { border-color: #555; }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-left: auto;
+    }
+
     .header-stats {
       display: flex;
       gap: 14px;
-      margin-left: auto;
     }
 
     .hstat {
@@ -125,6 +131,216 @@
     .dot-cold      { background: var(--cold); }
     .dot-contacted { background: var(--green); }
 
+    /* ── RUN BUTTON ── */
+    .btn-run {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(240,62,62,0.1);
+      border: 1px solid rgba(240,62,62,0.25);
+      color: var(--hot);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-run:hover:not(:disabled) {
+      background: rgba(240,62,62,0.18);
+      border-color: rgba(240,62,62,0.4);
+    }
+    .btn-run:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-run.running {
+      background: rgba(245,159,0,0.1);
+      border-color: rgba(245,159,0,0.25);
+      color: var(--warm);
+    }
+    .btn-run.success {
+      background: rgba(32,201,151,0.1);
+      border-color: rgba(32,201,151,0.25);
+      color: var(--green);
+    }
+
+    .run-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .run-dot.pulse {
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      width: 100%;
+      max-width: 460px;
+      transform: scale(0.96) translateY(8px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .modal-sub {
+      font-size: 13px;
+      color: var(--subtext);
+      line-height: 1.55;
+      margin-bottom: 20px;
+    }
+    .modal-sub a {
+      color: var(--cold);
+      text-decoration: none;
+    }
+    .modal-sub a:hover { text-decoration: underline; }
+
+    .modal-field { margin-bottom: 16px; }
+    .modal-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--subtext);
+      margin-bottom: 7px;
+    }
+    .modal-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .modal-input:focus { border-color: #555; }
+    .modal-input::placeholder { color: #444; }
+
+    .modal-error {
+      font-size: 12px;
+      color: var(--hot);
+      margin-top: 6px;
+      min-height: 18px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s;
+      line-height: 1;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--subtext);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+    .btn-primary {
+      background: var(--hot);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* clear token link */
+    .token-status {
+      font-size: 11px;
+      color: var(--subtext);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: -4px;
+      margin-bottom: 4px;
+    }
+    .token-status button {
+      background: none;
+      border: none;
+      color: var(--hot);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.toast-ok  { border-color: rgba(32,201,151,0.4); color: var(--green); }
+    .toast.toast-err { border-color: rgba(240,62,62,0.4);  color: var(--hot); }
+
     /* ── MAIN ── */
     main {
       max-width: 1280px;
@@ -132,7 +348,6 @@
       padding: 36px 24px 64px;
     }
 
-    /* ── STATE MESSAGES ── */
     .state {
       display: flex;
       flex-direction: column;
@@ -146,7 +361,6 @@
     .state-icon { font-size: 40px; }
     .state-msg  { font-size: 15px; }
 
-    /* ── TIER SECTION ── */
     .tier-section { margin-bottom: 52px; }
 
     .tier-heading {
@@ -170,7 +384,6 @@
       border-radius: 20px;
     }
 
-    /* ── CARDS GRID ── */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
@@ -178,11 +391,9 @@
     }
     @media (max-width: 520px) {
       .cards-grid { grid-template-columns: 1fr; }
-      header { gap: 10px; }
       .header-stats { display: none; }
     }
 
-    /* ── CARD ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -210,7 +421,6 @@
     }
     .card.is-contacted:hover { opacity: 0.6; }
 
-    /* top colour bar */
     .card-bar { height: 3px; }
     .card.tier-hiring .card-bar { background: var(--hiring); }
     .card.tier-hot    .card-bar { background: var(--hot); }
@@ -219,7 +429,6 @@
 
     .card-inner { padding: 18px 20px 20px; }
 
-    /* card top row */
     .card-top {
       display: flex;
       justify-content: space-between;
@@ -243,7 +452,6 @@
     }
     .card-author a:hover { color: var(--text); text-decoration: underline; }
 
-    /* badges */
     .badges {
       display: flex;
       gap: 5px;
@@ -268,18 +476,15 @@
     .badge-prio.hi  { color: var(--hot); }
     .badge-prio.med { color: var(--warm); }
     .badge-prio.lo  { color: var(--cold); }
-
     .badge-match-high   { background: rgba(32,201,151,0.1); color: var(--green); }
     .badge-match-medium { background: rgba(245,159,0,0.1);  color: var(--warm); }
     .badge-match-low    { background: rgba(51,154,240,0.1); color: var(--cold); }
-
     .badge-hiring {
       background: rgba(204,93,232,0.12);
       color: var(--hiring);
       border: 1px solid rgba(204,93,232,0.25);
     }
 
-    /* reason */
     .card-reason {
       font-size: 13px;
       color: var(--subtext);
@@ -287,7 +492,6 @@
       line-height: 1.5;
     }
 
-    /* hiring quote */
     .hiring-quote {
       margin-bottom: 12px;
       padding: 9px 12px;
@@ -300,7 +504,6 @@
       line-height: 1.45;
     }
 
-    /* pitch rows */
     .pitch {
       display: flex;
       gap: 9px;
@@ -321,7 +524,6 @@
     }
     .pitch-txt { font-size: 12px; color: var(--text); line-height: 1.4; }
 
-    /* contact */
     .contact-block {
       margin-top: 12px;
       padding: 9px 11px;
@@ -344,46 +546,47 @@
     }
     .contact-val.has-email { color: #74c0fc; }
 
-    /* footer buttons */
     .card-footer {
       display: flex;
       gap: 7px;
       margin-top: 14px;
       flex-wrap: wrap;
     }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
       padding: 7px 13px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
-      border: none;
       text-decoration: none;
-      transition: background 0.15s, opacity 0.15s;
-      line-height: 1;
-    }
-    .btn-secondary {
-      background: var(--surface2);
-      color: var(--text);
-      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      transition: background 0.15s, border-color 0.15s;
     }
     .btn-secondary:hover { background: #222; border-color: #3a3a3a; }
 
     .btn-contacted {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
       background: rgba(32,201,151,0.1);
       color: var(--green);
       border: 1px solid rgba(32,201,151,0.2);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
     }
     .btn-contacted:hover { background: rgba(32,201,151,0.18); }
     .btn-contacted.active {
       background: rgba(32,201,151,0.18);
-      color: var(--green);
     }
 
-    /* ── CONTACTED SECTION TOGGLE ── */
     .contacted-toggle {
       display: flex;
       align-items: center;
@@ -410,7 +613,6 @@
       transition: max-height 0.3s ease;
     }
     .contacted-drawer.open { max-height: 9999px; }
-
   </style>
 </head>
 <body>
@@ -423,7 +625,14 @@
     <label for="weekSelect">Week</label>
     <select id="weekSelect"></select>
   </div>
-  <div class="header-stats" id="headerStats"></div>
+  <div class="header-right">
+    <div class="header-stats" id="headerStats"></div>
+    <div class="divider"></div>
+    <button class="btn-run" id="runBtn" onclick="onRunClick()">
+      <span class="run-dot" id="runDot"></span>
+      <span id="runLabel">Run Scraper</span>
+    </button>
+  </div>
 </header>
 
 <!-- MAIN CONTENT -->
@@ -434,13 +643,70 @@
   </div>
 </main>
 
+<!-- TOKEN MODAL -->
+<div class="modal-overlay" id="tokenModal">
+  <div class="modal">
+    <div class="modal-title">GitHub Token Required</div>
+    <div class="modal-sub">
+      To trigger the scraper from here, you need a GitHub Personal Access Token
+      with <strong>workflow</strong> permission.<br><br>
+      <a href="https://github.com/settings/personal-access-tokens/new"
+         target="_blank" rel="noopener">
+        Create one here ↗
+      </a>
+      — set it to <em>Fine-grained</em>, select your
+      <strong>JobSeeker</strong> repo, and under
+      <em>Repository permissions</em> enable
+      <strong>Actions → Read and write</strong>.
+      No other permissions needed.
+      <br><br>
+      Your token is saved only in this browser. It never leaves your device.
+    </div>
+
+    <div id="tokenStatusRow" class="token-status" style="display:none">
+      <span>✓ Token saved</span>
+      <button onclick="clearToken()">Remove token</button>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label" for="tokenInput">Personal Access Token</label>
+      <input class="modal-input" id="tokenInput"
+             type="password"
+             placeholder="github_pat_…"
+             autocomplete="off"
+             spellcheck="false" />
+      <div class="modal-error" id="tokenError"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeTokenModal()">Cancel</button>
+      <button class="btn btn-primary" id="tokenSaveBtn" onclick="saveToken()">
+        Save &amp; Run
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
 // ─────────────────────────────────────────────
-// CONSTANTS & STATE
+// CONFIG — update if you rename your repo
 // ─────────────────────────────────────────────
-const STORE_PREFIX = 'lf_contacted_';
-let currentDate   = null;
-let currentReport = null;
+const GITHUB_OWNER    = 'johnblek';
+const GITHUB_REPO     = 'JobSeeker';
+const WORKFLOW_FILE   = 'scrape.yml';
+const BRANCH          = 'main';
+
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
+const STORE_PREFIX    = 'lf_contacted_';
+const TOKEN_KEY       = 'lf_gh_token';
+let currentDate       = null;
+let currentReport     = null;
+let runState          = 'idle'; // idle | running | success
 
 // ─────────────────────────────────────────────
 // LOCALSTORAGE HELPERS
@@ -451,15 +717,12 @@ function getContacted(date) {
     return raw ? new Set(JSON.parse(raw)) : new Set();
   } catch { return new Set(); }
 }
-
 function saveContacted(date, set) {
   localStorage.setItem(STORE_PREFIX + date, JSON.stringify([...set]));
 }
-
 function isContacted(date, id) {
   return getContacted(date).has(id);
 }
-
 function toggleContacted(date, id) {
   const set = getContacted(date);
   set.has(id) ? set.delete(id) : set.add(id);
@@ -467,8 +730,12 @@ function toggleContacted(date, id) {
   return set.has(id);
 }
 
+function getToken()       { return localStorage.getItem(TOKEN_KEY) || ''; }
+function storeToken(t)    { localStorage.setItem(TOKEN_KEY, t); }
+function removeToken()    { localStorage.removeItem(TOKEN_KEY); }
+
 // ─────────────────────────────────────────────
-// SAFE HTML ESCAPE
+// SAFE ESCAPE
 // ─────────────────────────────────────────────
 function esc(str) {
   if (str === null || str === undefined) return '';
@@ -481,21 +748,205 @@ function esc(str) {
 }
 
 // ─────────────────────────────────────────────
-// TIER HELPERS
+// TOAST
 // ─────────────────────────────────────────────
-function getTierClass(lead) {
-  if (lead.explicitly_hiring)             return 'tier-hiring';
-  if (lead.priority >= 7)                 return 'tier-hot';
-  if (lead.priority >= 4)                 return 'tier-warm';
-  return 'tier-cold';
+let toastTimer = null;
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' toast-' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3200);
 }
 
+// ─────────────────────────────────────────────
+// RUN BUTTON STATE
+// ─────────────────────────────────────────────
+function setRunState(state) {
+  runState = state;
+  const btn   = document.getElementById('runBtn');
+  const dot   = document.getElementById('runDot');
+  const label = document.getElementById('runLabel');
+
+  btn.disabled = (state === 'running');
+  dot.className = 'run-dot' + (state === 'running' ? ' pulse' : '');
+
+  if (state === 'idle') {
+    btn.className = 'btn-run';
+    label.textContent = 'Run Scraper';
+  } else if (state === 'running') {
+    btn.className = 'btn-run running';
+    label.textContent = 'Running…';
+  } else if (state === 'success') {
+    btn.className = 'btn-run success';
+    label.textContent = 'Triggered ✓';
+    setTimeout(() => setRunState('idle'), 4000);
+  }
+}
+
+// ─────────────────────────────────────────────
+// TOKEN MODAL
+// ─────────────────────────────────────────────
+function openTokenModal() {
+  const modal    = document.getElementById('tokenModal');
+  const input    = document.getElementById('tokenInput');
+  const errEl    = document.getElementById('tokenError');
+  const statusRow = document.getElementById('tokenStatusRow');
+
+  errEl.textContent = '';
+  input.value = '';
+
+  if (getToken()) {
+    statusRow.style.display = 'flex';
+    input.placeholder = 'Enter new token to replace…';
+  } else {
+    statusRow.style.display = 'none';
+    input.placeholder = 'github_pat_…';
+  }
+
+  modal.classList.add('open');
+  setTimeout(() => input.focus(), 220);
+}
+
+function closeTokenModal() {
+  document.getElementById('tokenModal').classList.remove('open');
+}
+
+function clearToken() {
+  removeToken();
+  document.getElementById('tokenStatusRow').style.display = 'none';
+  document.getElementById('tokenInput').placeholder = 'github_pat_…';
+  showToast('Token removed.', '');
+}
+
+async function saveToken() {
+  const input  = document.getElementById('tokenInput');
+  const errEl  = document.getElementById('tokenError');
+  const saveBtn = document.getElementById('tokenSaveBtn');
+  const token  = input.value.trim();
+
+  errEl.textContent = '';
+
+  if (!token) {
+    // No new token entered — if one exists, just trigger with existing
+    if (getToken()) {
+      closeTokenModal();
+      await triggerWorkflow(getToken());
+    } else {
+      errEl.textContent = 'Please enter your token.';
+    }
+    return;
+  }
+
+  // Quick validation: test the token against the repo
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Verifying…';
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (res.status === 401) throw new Error('Token is invalid or expired.');
+    if (res.status === 404) throw new Error('Repo not found — check owner/repo name.');
+    if (!res.ok)             throw new Error(`GitHub returned ${res.status}.`);
+
+    storeToken(token);
+    closeTokenModal();
+    await triggerWorkflow(token);
+
+  } catch (err) {
+    errEl.textContent = err.message;
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save & Run';
+  }
+}
+
+// ─────────────────────────────────────────────
+// TRIGGER THE WORKFLOW
+// ─────────────────────────────────────────────
+async function triggerWorkflow(token) {
+  setRunState('running');
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ref: BRANCH })
+      }
+    );
+
+    if (res.status === 204) {
+      // 204 No Content = success
+      setRunState('success');
+      showToast('✓ Scraper triggered! Check back in ~15 minutes.', 'ok');
+    } else if (res.status === 401) {
+      setRunState('idle');
+      removeToken();
+      showToast('Token rejected. Please re-enter it.', 'err');
+      openTokenModal();
+    } else if (res.status === 403) {
+      setRunState('idle');
+      showToast('Permission denied. Make sure your token has Actions: Read & Write.', 'err');
+    } else if (res.status === 422) {
+      setRunState('idle');
+      showToast('Workflow not found. Make sure scrape.yml is on the main branch.', 'err');
+    } else {
+      const body = await res.text();
+      setRunState('idle');
+      showToast(`Error ${res.status}: ${body.slice(0, 80)}`, 'err');
+    }
+  } catch (err) {
+    setRunState('idle');
+    showToast(`Network error: ${err.message}`, 'err');
+  }
+}
+
+// ─────────────────────────────────────────────
+// RUN BUTTON CLICK
+// ─────────────────────────────────────────────
+function onRunClick() {
+  if (runState === 'running') return;
+  const token = getToken();
+  if (!token) {
+    openTokenModal();
+  } else {
+    triggerWorkflow(token);
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('tokenModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTokenModal();
+});
+
+// Enter key in token input
+document.getElementById('tokenInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') saveToken();
+});
+
+// ─────────────────────────────────────────────
+// TIER + BADGE HELPERS
+// ─────────────────────────────────────────────
+function getTierClass(lead) {
+  if (lead.explicitly_hiring) return 'tier-hiring';
+  if (lead.priority >= 7)     return 'tier-hot';
+  if (lead.priority >= 4)     return 'tier-warm';
+  return 'tier-cold';
+}
 function getPrioClass(p) {
   if (p >= 7) return 'hi';
   if (p >= 4) return 'med';
   return 'lo';
 }
-
 function getMatchClass(m) {
   const v = (m || '').toLowerCase();
   if (v === 'high')   return 'badge-match-high';
@@ -541,8 +992,8 @@ function renderCard(lead, date) {
          </div>
        </div>` : '';
 
-  const contactedBtnLabel = contacted ? '✓ Contacted' : 'Mark Contacted';
   const contactedBtnClass = contacted ? 'btn-contacted active' : 'btn-contacted';
+  const contactedBtnLabel = contacted ? '✓ Contacted' : 'Mark Contacted';
 
   return `
 <div class="card ${tierClass}${contacted ? ' is-contacted' : ''}"
@@ -550,7 +1001,6 @@ function renderCard(lead, date) {
      data-date="${esc(date)}">
   <div class="card-bar"></div>
   <div class="card-inner">
-
     <div class="card-top">
       <div>
         <div class="card-title">${esc(lead.title)}</div>
@@ -562,27 +1012,21 @@ function renderCard(lead, date) {
         <span class="badge ${matchClass}">${esc(lead.genre_match)}</span>
       </div>
     </div>
-
     <div class="card-reason">${esc(lead.reason)}</div>
-
     ${hiringQuoteHtml}
     ${sfxHtml}
     ${musicHtml}
-
     <div class="contact-block">
       <div class="contact-lbl">Contact</div>
       <div class="contact-val${hasEmail ? ' has-email' : ''}">${esc(lead.contact) || 'Check page'}</div>
     </div>
-
     <div class="card-footer">
-      <a class="btn btn-secondary"
+      <a class="btn-secondary"
          href="${esc(lead.url)}" target="_blank" rel="noopener">View Game ↗</a>
-      <button class="btn ${contactedBtnClass}"
-              onclick="onContactedClick(this)">
+      <button class="${contactedBtnClass}" onclick="onContactedClick(this)">
         ${contactedBtnLabel}
       </button>
     </div>
-
   </div>
 </div>`;
 }
@@ -591,20 +1035,19 @@ function renderCard(lead, date) {
 // CONTACTED BUTTON HANDLER
 // ─────────────────────────────────────────────
 function onContactedClick(btn) {
-  const card   = btn.closest('.card');
-  const id     = card.dataset.id;
-  const date   = card.dataset.date;
-  const nowIs  = toggleContacted(date, id);
+  const card  = btn.closest('.card');
+  const id    = card.dataset.id;
+  const date  = card.dataset.date;
+  const nowIs = toggleContacted(date, id);
 
   card.classList.toggle('is-contacted', nowIs);
   btn.textContent = nowIs ? '✓ Contacted' : 'Mark Contacted';
   btn.classList.toggle('active', nowIs);
-
   updateHeaderStats(date);
 }
 
 // ─────────────────────────────────────────────
-// ANIMATE CARDS IN (staggered)
+// ANIMATE CARDS
 // ─────────────────────────────────────────────
 function animateCards() {
   const cards = document.querySelectorAll('.card:not(.in)');
@@ -628,20 +1071,14 @@ function renderReport(report, date) {
     return;
   }
 
-  // Split into tiers
-  const hiring  = leads.filter(l => l.explicitly_hiring);
-  const hot     = leads.filter(l => !l.explicitly_hiring && l.priority >= 7);
-  const warm    = leads.filter(l => !l.explicitly_hiring && l.priority >= 4 && l.priority < 7);
-  const cold    = leads.filter(l => l.priority < 4);
-
-  // Separate out contacted leads
+  const hiring    = leads.filter(l => l.explicitly_hiring);
+  const hot       = leads.filter(l => !l.explicitly_hiring && l.priority >= 7);
+  const warm      = leads.filter(l => !l.explicitly_hiring && l.priority >= 4 && l.priority < 7);
+  const cold      = leads.filter(l => l.priority < 4);
   const contacted = leads.filter(l => isContacted(date, l.id));
-
-  let html = '';
 
   const renderTier = (emoji, label, tierLeads) => {
     if (!tierLeads.length) return '';
-    // Filter out already-contacted from the main view
     const active = tierLeads.filter(l => !isContacted(date, l.id));
     if (!active.length) return '';
     return `
@@ -656,12 +1093,12 @@ function renderReport(report, date) {
       </section>`;
   };
 
+  let html = '';
   html += renderTier('🚨', 'Explicitly Hiring', hiring);
   html += renderTier('🔥', 'Hot Leads',         hot);
   html += renderTier('🟡', 'Warm Leads',         warm);
   html += renderTier('🔵', 'Cold Leads',         cold);
 
-  // Contacted drawer
   if (contacted.length) {
     html += `
       <div class="contacted-toggle" id="contactedToggle" onclick="toggleContactedDrawer()">
@@ -675,24 +1112,24 @@ function renderReport(report, date) {
       </div>`;
   }
 
-  document.getElementById('mainContent').innerHTML = html || `
-    <div class="state">
-      <div class="state-icon">✅</div>
-      <div class="state-msg">All leads have been contacted!</div>
-    </div>`;
+  if (!html) {
+    html = `<div class="state">
+              <div class="state-icon">✅</div>
+              <div class="state-msg">All leads contacted!</div>
+            </div>`;
+  }
 
-  // Stagger animate
+  document.getElementById('mainContent').innerHTML = html;
   requestAnimationFrame(animateCards);
-
   updateHeaderStats(date);
 }
 
 // ─────────────────────────────────────────────
-// CONTACTED DRAWER TOGGLE
+// CONTACTED DRAWER
 // ─────────────────────────────────────────────
 function toggleContactedDrawer() {
-  const toggle  = document.getElementById('contactedToggle');
-  const drawer  = document.getElementById('contactedDrawer');
+  const toggle = document.getElementById('contactedToggle');
+  const drawer = document.getElementById('contactedDrawer');
   if (!toggle || !drawer) return;
   toggle.classList.toggle('open');
   drawer.classList.toggle('open');
@@ -704,11 +1141,8 @@ function toggleContactedDrawer() {
 function updateHeaderStats(date) {
   const el = document.getElementById('headerStats');
   if (!el || !currentReport) return;
-
-  const leads    = currentReport.leads || [];
-  const c        = currentReport.counts || {};
+  const c          = currentReport.counts || {};
   const nContacted = getContacted(date).size;
-
   el.innerHTML = `
     <div class="hstat"><span class="dot dot-hiring"></span><b>${c.hiring || 0}</b> hiring</div>
     <div class="hstat"><span class="dot dot-hot"></span><b>${c.hot || 0}</b> hot</div>
@@ -722,7 +1156,6 @@ function updateHeaderStats(date) {
 // ─────────────────────────────────────────────
 async function loadReport(date) {
   currentDate = date;
-
   document.getElementById('mainContent').innerHTML =
     `<div class="state">
        <div class="state-icon">⏳</div>
@@ -747,7 +1180,7 @@ async function loadReport(date) {
 }
 
 // ─────────────────────────────────────────────
-// BOOT — load manifest then first report
+// BOOT
 // ─────────────────────────────────────────────
 async function boot() {
   const sel = document.getElementById('weekSelect');
@@ -761,19 +1194,17 @@ async function boot() {
       document.getElementById('mainContent').innerHTML =
         `<div class="state">
            <div class="state-icon">📭</div>
-           <div class="state-msg">No reports yet. Run the scraper to generate your first report.</div>
+           <div class="state-msg">No reports yet.<br>Hit <strong>Run Scraper</strong> to generate your first one.</div>
          </div>`;
-      sel.innerHTML = '<option>No reports</option>';
+      sel.innerHTML = '<option>No reports yet</option>';
       return;
     }
 
-    sel.innerHTML = dates
-      .map(d => `<option value="${esc(d)}">${d}</option>`)
-      .join('');
+    sel.innerHTML = dates.map(d =>
+      `<option value="${esc(d)}">${d}</option>`
+    ).join('');
 
     sel.addEventListener('change', () => loadReport(sel.value));
-
-    // Load the latest
     loadReport(dates[0]);
 
   } catch (err) {
@@ -782,9 +1213,7 @@ async function boot() {
          <div class="state-icon">⚠️</div>
          <div class="state-msg">
            Could not load manifest.<br>
-           <small style="color:var(--subtext)">
-             Make sure the scraper has run at least once.<br>${esc(err.message)}
-           </small>
+           <small style="color:var(--subtext)">Run the scraper first.<br>${esc(err.message)}</small>
          </div>
        </div>`;
     sel.innerHTML = '<option>—</option>';
