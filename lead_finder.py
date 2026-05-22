@@ -6,6 +6,7 @@ import time
 import os
 import re
 import sqlite3
+import hashlib
 from datetime import datetime, timezone
 
 # ============================================================
@@ -408,8 +409,79 @@ def generate_report(leads, date_str):
     report_path = f"reports/{date_str}.md"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"Report written: {report_path}")
+    print(f"Markdown report written: {report_path}")
     return report_path
+
+
+# ============================================================
+# JSON REPORT (for web GUI)
+# ============================================================
+def generate_json_report(leads, date_str):
+    """Write a JSON version of the report for the web GUI."""
+    output = {
+        "date": date_str,
+        "total": len(leads),
+        "counts": {
+            "hiring": len([l for l in leads if l.get("explicitly_hiring")]),
+            "hot":    len([l for l in leads if not l.get("explicitly_hiring") and l.get("priority", 0) >= 7]),
+            "warm":   len([l for l in leads if not l.get("explicitly_hiring") and 4 <= l.get("priority", 0) < 7]),
+            "cold":   len([l for l in leads if l.get("priority", 0) < 4]),
+        },
+        "leads": []
+    }
+
+    for lead in leads:
+        # Stable short ID from the URL
+        lead_id = hashlib.md5(lead.get("url", "").encode()).hexdigest()[:12]
+        output["leads"].append({
+            "id":                 lead_id,
+            "title":              lead.get("title", ""),
+            "author":             lead.get("author", ""),
+            "author_profile_url": lead.get("author_profile_url", ""),
+            "url":                lead.get("url", ""),
+            "source":             lead.get("source", ""),
+            "description":        lead.get("description", ""),
+            "explicitly_hiring":  bool(lead.get("explicitly_hiring")),
+            "hiring_quote":       lead.get("hiring_quote", ""),
+            "needs_sound_design": bool(lead.get("needs_sound_design")),
+            "needs_music":        bool(lead.get("needs_music")),
+            "confidence":         lead.get("confidence", ""),
+            "pitch_sfx":          lead.get("pitch_sfx", ""),
+            "pitch_music":        lead.get("pitch_music", ""),
+            "genre_match":        lead.get("genre_match", ""),
+            "priority":           int(lead.get("priority", 0)),
+            "reason":             lead.get("reason", ""),
+            "contact":            lead.get("contact", "")
+        })
+
+    os.makedirs("reports", exist_ok=True)
+    json_path = f"reports/{date_str}.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
+    print(f"JSON report written: {json_path}")
+
+
+# ============================================================
+# MANIFEST (tells the GUI which weeks exist)
+# ============================================================
+def update_manifest(date_str):
+    """Keep a sorted list of all report dates for the web GUI."""
+    manifest_path = "reports_manifest.json"
+
+    if os.path.exists(manifest_path):
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            dates = json.load(f)
+    else:
+        dates = []
+
+    if date_str not in dates:
+        dates.append(date_str)
+
+    dates.sort(reverse=True)  # Newest first
+
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(dates, f, indent=2)
+    print(f"Manifest updated: {dates}")
 
 
 # ============================================================
@@ -428,8 +500,12 @@ def main():
     if not leads:
         print("No new leads to analyze this run.")
         os.makedirs("reports", exist_ok=True)
+        empty = {"date": today, "total": 0, "counts": {}, "leads": []}
+        with open(f"reports/{today}.json", "w") as f:
+            json.dump(empty, f)
         with open(f"reports/{today}.md", "w") as f:
             f.write(f"# Lead Report — {today}\n\nNo new leads found this run.\n")
+        update_manifest(today)
         conn.close()
         return
 
@@ -468,6 +544,9 @@ def main():
     ))
 
     generate_report(analyzed, today)
+    generate_json_report(analyzed, today)  # ← NEW
+    update_manifest(today)                 # ← NEW
+
     conn.close()
     print(f"Done. {len(analyzed)} leads analyzed and saved.")
 
