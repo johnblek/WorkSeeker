@@ -1,0 +1,32 @@
+{
+  "date": "2026-07-06",
+  "total": 1,
+  "counts": {
+    "hiring": 0,
+    "hot": 0,
+    "warm": 1,
+    "cold": 0
+  },
+  "leads": [
+    {
+      "id": "d43246eee4c3",
+      "title": "Asleep in the Deep",
+      "author": "Harlequin Diver",
+      "author_profile_url": "https://harlequindiver.itch.io",
+      "url": "https://harlequindiver.itch.io/asleep-in-the-deep",
+      "source": "itch.io/tag-horror",
+      "description": "Solve puzzles and find your way out of The Deep",
+      "explicitly_hiring": false,
+      "hiring_quote": "",
+      "needs_sound_design": true,
+      "needs_music": true,
+      "confidence": "medium",
+      "pitch_sfx": "His atmospheric and brooding sound design would perfectly complement the horror and puzzle elements of 'Asleep in the Deep,' creating a truly immersive and tension-filled environment.",
+      "pitch_music": "While the game's explicit genre isn't heavy, his ability to create dark, driving, and atmospheric music could be a unique and compelling fit for moments of intense pressure or discovery within a horror context.",
+      "genre_match": "medium",
+      "priority": 6,
+      "reason": "This horror puzzle game could benefit greatly from atmospheric sound design, and while heavy music isn't a direct fit, his skills in crafting dark and driving soundscapes offer a potential avenue for collaboration.",
+      "contact": "Links: https://bsky.app/profile/harlequindiver.bsky.social"
+    }
+  ]
+}
